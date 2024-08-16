@@ -89,12 +89,12 @@ const AddChallengeListingScreen = ({ challengePost, navigation, route }) => {
         name: "",
         image: "",
         description: "",
-      });      
+      });
       setShowAddBtn(true);
       setItemList(newArr);
-      if(newArr?.length == 10){
-        setShowAddBtn(false)
-      }      
+      if (newArr?.length == 10) {
+        setShowAddBtn(false);
+      }
     }
   };
   const _handleRemove = (index) => {
@@ -105,7 +105,7 @@ const AddChallengeListingScreen = ({ challengePost, navigation, route }) => {
       }
     });
     setItemList(newArr);
-    if (newArr?.length <= 7) {
+    if (newArr?.length <= 10) {
       setShowAddBtn(true);
     } else {
       setShowAddBtn(false);

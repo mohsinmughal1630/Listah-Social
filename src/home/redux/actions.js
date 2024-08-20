@@ -20,7 +20,7 @@ import ThreadManager from "../../ChatModule/ThreadManger";
 
 const PostsCollection = FireStore().collection("posts");
 const AnnouncementCollection = FireStore().collection("announcements");
-const ProfilesCollection = FireStore().collection("profiles");
+const ProfilesCollection = firestore().collection("profiles");
 const ReportPostCollection = FireStore().collection("reports");
 const BlockUsersCollection = FireStore().collection("blockUsers");
 const SavePostCollection = FireStore().collection("savePosts");
@@ -1085,9 +1085,10 @@ export const deletePost = (postId) => async (dispatch) => {
   try {
     dispatch({ type: constants.DELETE_POST.REQUEST });
     const currentUserUid = FireAuth().currentUser.uid;
-    const currentUserProfile = await (
-      await ProfilesCollection.doc(currentUserUid).get()
-    ).data();
+    console.log("currentUserUid -- ", currentUserUid);
+    const currentUserProfiledata = await ProfilesCollection.doc(currentUserUid).get();
+    const currentUserProfile = await currentUserProfiledata.data()
+
     const isLiked = currentUserProfile.likedPosts?.find((id) => id === postId);
 
     await PostsCollection.doc(`${postId}`).delete();

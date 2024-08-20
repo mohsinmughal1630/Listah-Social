@@ -161,7 +161,8 @@ const PostItem = ({
   if (!post) {
     return (
       <Card style={styles.container}>
-        <PostItemHeader />
+        <PostItemHeader 
+        />
         <Text center>Post no longer available</Text>
       </Card>
     );

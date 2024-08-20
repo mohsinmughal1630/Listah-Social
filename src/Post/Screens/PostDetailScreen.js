@@ -86,7 +86,8 @@ const PostDetailScreen = (props) => {
                 postIndex={index}
                 showIndex={false}
                 postRefresh={() => {}}
-                postDel={() => {}}
+                postDel={() => {console.log("post del ==============");
+                }}
                 postReport={async (isReportCount) => {
                   if (isReportCount == 2) {
                     await blockUsers(item?.author?.userId);

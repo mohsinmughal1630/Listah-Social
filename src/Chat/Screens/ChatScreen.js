@@ -27,6 +27,7 @@ import ChatBar from "../Components/ChatBar";
 import PdfView from "../Components/PdfView";
 import ChatImageView from "../Components/ChatImageView";
 import MediaSelectionModal from "../Components/MediaSelectionModal";
+import { request, check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import {
   AppColors,
   darkModeColors,
@@ -462,25 +463,55 @@ const ChatScreen = (props) => {
       }
     });
   };
+  // const checkAndroidPermission = async () => {
+  //   try {      
+  //     const granted = await PermissionsAndroid.request(
+  //       PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+  //       PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+  //       {
+  //         title: "File Access",
+  //         message: "We Need Your File Access to Upload Pdf",
+  //         buttonNeutral: "Ask Me Later",
+  //         buttonNegative: "Cancel",
+  //         buttonPositive: "OK",
+  //       }
+  //     );
+  //     console.log("PermissionsAndroid.RESULTS.GRANTED 2  --- ", PermissionsAndroid.RESULTS.GRANTED , " --- ", granted);
+
+  //     // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+  //       console.log("PermissionsAndroid.RESULTS.GRANTED --- ", PermissionsAndroid.RESULTS.GRANTED);
+        
+  //       documentSelection();
+  //     // }
+  //   } catch (e) {}
+  // };
+  
+  
   const checkAndroidPermission = async () => {
     try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        {
-          title: "File Access",
-          message: "We Need Your File Access to Upload Pdf",
-          buttonNeutral: "Ask Me Later",
-          buttonNegative: "Cancel",
-          buttonPositive: "OK",
+      if (Platform.OS === 'android') {
+        const readPermission = await request(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE);
+        
+        if (Platform.Version < 30) {
+          const writePermission = await request(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE);
+          if (readPermission === RESULTS.GRANTED && writePermission === RESULTS.GRANTED) {
+            documentSelection();
+          } else {
+            console.log("Storage permissions denied");
+          }
+        } else {
+            documentSelection();
         }
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        documentSelection();
       }
-    } catch (e) {}
+    } catch (error) {
+      console.error("Permission error: ", error);
+    }
   };
+
+
   const documentSelection = async () => {
+    console.log("docuement picerk -----");
+    
     DocumentPicker.pick({
       presentationStyle: "formSheet",
       type: types.pdf,

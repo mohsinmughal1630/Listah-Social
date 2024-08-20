@@ -102,6 +102,7 @@ const MyPostsScreen = ({ profile, route, unFollowUser, followUser }) => {
         id={item.id}
         post={item}
         postDel={() => {
+          
           getPostsByUserId();
           route.params.refreshCall();
         }}

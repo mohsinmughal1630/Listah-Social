@@ -20,6 +20,7 @@ export default function AlertModal(props) {
             themeType == Theme_Mode.isDark
               ? "rgba(0,0,0,0.6)"
               : "rgba(0,0,0,0.3)",
+              zIndex: 0
         }}
       >
         <View

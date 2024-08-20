@@ -68,6 +68,8 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
       await uploadMedia((rep) => {
         mediaUrl = rep;
       });
+      console.log("mediaUrl --- ", mediaUrl);
+      
       let singleItem = {
         name,
         description,
@@ -112,7 +114,6 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
         ]);
       });
     }
-    // setLoading(false);
     dispatch(setIsAppLoader(false));
   };
   const uploadMedia = async (onComplete) => {
@@ -120,12 +121,12 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
     if (
       (typeof mediaObj == "string" && mediaObj.includes("https")) ||
       (typeof mediaObj?.video == "string" && mediaObj?.video.includes("https"))
-    ) {
+    ) {      
       obj = {
         ...mediaObj,
       };
     }
-    if (mediaObj?.uri != "" && !mediaObj?.thumbnail) {
+    if (mediaObj?.uri != "" && mediaObj?.thumbnail) {
       const compressedImage = await ImageResizer.createResizedImage(
         mediaObj?.uri,
         1000,

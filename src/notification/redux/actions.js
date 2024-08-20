@@ -38,7 +38,7 @@ export const getLoginUserNotificationCount = async (dispatch) => {
     (item) => item.unread
   ).length;
   dispatch(setNotificationData(unreadCount));
-  console.log("popularNootificationList - > ", unreadCount);
+  // console.log("popularNootificationList - > ", unreadCount);
 };
 /**
  * GET_NOTIFICATIONS

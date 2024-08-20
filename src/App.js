@@ -14,24 +14,19 @@ const store = configureStore();
 const App = () => {
 
   useEffect(()=>{
-    registerDevice();
-    console.log("useEffect ------");
-    
+    registerDevice();    
   },[])
 
   ////////Push notification-------->
   const registerDevice = async () => {
     if (Platform.OS == 'ios') {
       await getPermissionsForNotification();
-    } else {
-      console.log("Androi d-------");
-      
+    } else {      
       requestNotificationPermission();
     }
   };
 
   const requestNotificationPermission = async () => {
-    console.log("checking status --");
     if (Platform.OS === 'android' && Platform.Version >= 33) {
       
       const {status} = await checkNotifications();

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import { Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 
 import { Container, Content, Text, View } from "../../common";
@@ -14,7 +14,6 @@ import ProfileIcon from "../../assets/icons/nav-profile-icon.svg";
 import { getProfile as selectProfile } from "../redux/selectors";
 import { getProfile as getProfileAction } from "../redux/actions";
 import {
-  deleteUserAccount,
   logout as logoutAction,
 } from "../../auth/redux/actions";
 import {
@@ -36,11 +35,14 @@ import { Routes } from "../../util/Route";
 import { checkUserAccountRequestStatus } from "../../network/Services/ProfileServices";
 import { RequestStatus, Theme_Mode, Theme_Types } from "../../util/Strings";
 import useNotificationManger from "../../hooks/useNotificationManger";
+import * as constants from "../redux/constants";
+import auth from "@react-native-firebase/auth";
+import FireStore from "@react-native-firebase/firestore";
 
 /* =============================================================================
 <ProfileScreen />
 ============================================================================= */
-const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
+const ProfileScreen = ({ profile, getProfile, logout }) => {
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
   const [reqBtnStatus, setReqBtnStatus] = useState(null);
   const isFocused = useIsFocused();
@@ -52,6 +54,9 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
   const email = profile?.email;
   const profileImage = profile?.profileImage;
   const username = profile?.username;
+  const [password, setPassword] = useState('')
+
+  const ProfileCollection = FireStore().collection("profiles");
 
   // GET PROFILE
   useEffect(() => {
@@ -87,6 +92,77 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
     }
   };
 
+
+  const deleteUserAccount = () => async () => {
+    const dispatch = useDispatch();
+
+
+    // try {
+    //   dispatch({ type: constants.LOGOUT.REQUEST });
+
+    //   const user = auth().currentUser;
+    //   console.log("user --- ", user);
+    //   console.log("password  .....", password, "--- ");
+
+    //   if (user) {
+    //     // if (password) {
+    //     //   const credential = auth.EmailAuthProvider.credential(
+    //     //     user?.email,
+    //     //     password,
+    //     //   );        
+    //     //   await user.reauthenticateWithCredential(credential);
+    //     //   console.log("Re authenticating.....");
+    //     // }
+
+
+    //     //////
+
+
+    //     // await ProfileCollection.doc(auth().currentUser.uid).delete();
+    //     // await auth().currentUser.delete();
+    //   }
+    //   dispatch({ type: constants.LOGOUT.SUCCESS });
+    // } catch (error) {
+    //   console.log("showError - > ", error);
+    //   Alert.alert(error.message);
+    //   dispatch({ type: constants.LOGOUT.FAIL, error });
+    // } finally {
+    //   dispatch({ type: constants.LOGOUT.COMPLETE });
+    // }
+  };
+
+  const userDeleteHandler =async () => {
+        // dispatch({ type: constants.LOGOUT.REQUEST });
+
+    try{
+      const user = auth().currentUser;
+    console.log("password --- ", password);
+    console.log("user --- ", user);
+    
+    if (user) {
+      if (password) {
+        const credential = auth.EmailAuthProvider.credential(
+          user?.email,
+          password,
+        );
+        await user.reauthenticateWithCredential(credential);
+        console.log("reauthenticating...");
+        
+      }
+      await ProfileCollection.doc(user.uid).delete();
+      await auth().currentUser.delete();
+      }
+      return true; 
+    // dispatch({ type: constants.LOGOUT.SUCCESS });
+
+    } catch (e) {
+      Alert.alert("Error", "Something went wrong!")
+      console.log("error ==>  ", e, "e.message ", e.message);
+      
+    }
+  }
+
+
   const _deleteAccount = async () => {
     dispatch(setIsAppLoader(true));
     await checkNUpdateFCMToken({
@@ -96,8 +172,12 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
     dispatch(setDraftPost([]));
     dispatch(setThreadList([]));
     await saveUserDraftPost([]);
-    deleteUserAccount();
+
+    const resp = await userDeleteHandler()
+
     dispatch(setIsAppLoader(false));
+    if(resp){
+    logout();}
     let themeType = await getThemeType();
     if (themeType) {
       dispatch(
@@ -110,6 +190,7 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
       );
     }
   };
+
   const fetchReqStatus = async (id) => {
     await checkUserAccountRequestStatus(id, (res) => {
       setReqBtnStatus(res);
@@ -247,13 +328,13 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
                   }}
                 >
                   {reqBtnStatus == RequestStatus.newReq ||
-                  reqBtnStatus == RequestStatus.rejected
+                    reqBtnStatus == RequestStatus.rejected
                     ? "Request for verified Account"
                     : reqBtnStatus == RequestStatus.pending
-                    ? "Request Pending"
-                    : reqBtnStatus == RequestStatus.accepted
-                    ? "Request Accepted"
-                    : ""}
+                      ? "Request Pending"
+                      : reqBtnStatus == RequestStatus.accepted
+                        ? "Request Accepted"
+                        : ""}
                 </Text>
               </View>
             </TouchableOpacity>
@@ -398,6 +479,7 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
       </Content>
       {alertModal ? (
         <AlertModal
+          type='delete_account'
           visible={alertModal}
           multipleBtn={true}
           atLeftBtn={() => {
@@ -406,9 +488,12 @@ const ProfileScreen = ({ profile, getProfile, logout, deleteUserAccount }) => {
           leftBtnLabel={"No"}
           rightBtnLabel={"Yes"}
           onPress={() => {
-            _deleteAccount();
+            setAlertModal(false);
+            _deleteAccount(password);
           }}
           message={"Are you sure, you want to delete your Account?"}
+          password={password}
+          setPassword={setPassword}
         />
       ) : null}
     </Container>
@@ -449,7 +534,6 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = {
   logout: logoutAction,
-  deleteUserAccount: deleteUserAccount,
   getProfile: getProfileAction,
 };
 

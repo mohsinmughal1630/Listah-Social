@@ -119,6 +119,9 @@ export const AppColors = {
     lightGreen: "#EFF3F2",
     primaryLight: "#76E2C6",
   },
+  pink: {
+     light: '#ffdbe0',
+  },
 };
 
 export const AppImages = {
@@ -151,6 +154,7 @@ export const AppImages = {
     arrowDown: require("../assets/images/Common/arrowDown.png"),
     listahIcon: require("../assets/images/Common/listahIcon.jpeg"),
     crossIcon: require("../assets/images/Common/crossIcon.png"),
+    warning: require('../assets/images/Common/warning.png')
   },
   profile: {
     logout: require("../assets/images/logout.png"),

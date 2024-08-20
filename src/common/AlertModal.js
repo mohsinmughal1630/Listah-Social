@@ -1,8 +1,10 @@
-import React from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useState } from "react";
+import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useSelector } from "react-redux";
 import { Theme_Mode } from "../util/Strings";
 import {
+  AppColors,
+  AppImages,
   darkModeColors,
   lightModeColors,
   normalized,
@@ -10,9 +12,13 @@ import {
 
 export default function AlertModal(props) {
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
+  const [secureEntry, setSecureEntry] = useState(true)
+  const [passwordTxt, setPasswordTxt] = useState(props?.password)
+  const [error, setError] = useState(false)
 
   return (
     <Modal animationType={"slide"} visible={props?.visible} transparent={true}>
+
       <View
         style={{
           ...styles.container,
@@ -20,7 +26,7 @@ export default function AlertModal(props) {
             themeType == Theme_Mode.isDark
               ? "rgba(0,0,0,0.6)"
               : "rgba(0,0,0,0.3)",
-              zIndex: 0
+          zIndex: 0
         }}
       >
         <View
@@ -32,7 +38,8 @@ export default function AlertModal(props) {
                 : lightModeColors.background,
           }}
         >
-          <Text style={styles.title}>Alert</Text>
+
+          <Text style={styles.title}>Confirm Account Deletion</Text>
           <Text
             style={{
               ...styles.label,
@@ -44,12 +51,45 @@ export default function AlertModal(props) {
           >
             {props?.message}
           </Text>
+
+          {props?.type == 'delete_account' &&
+            <View style={{
+              ...styles.inputCont,
+              borderColor: error ? AppColors.red.dark : AppColors.blue.navy,
+              backgroundColor: error ? AppColors.pink.light : AppColors.white.white
+            }}>
+              <TextInput
+                value={props?.password}
+                onChangeText={(e) => {
+                  props?.setPassword(e);
+                  setPasswordTxt(e);
+                  setError(false)
+                }}
+                style={styles.passwordField}
+                placeholder="Password"
+                placeholderTextColor={'black'}
+                secureTextEntry={secureEntry}
+
+              />
+              <TouchableOpacity
+                onPress={() => setSecureEntry(!secureEntry)}
+                style={styles.eyeImg}
+              >
+                <Image
+                  source={secureEntry ? AppImages.Auth.eye : AppImages.Auth.closeEye}
+                  resizeMode='contain'
+                  tintColor={AppColors.blue.navy}
+                />
+              </TouchableOpacity>
+            </View>
+          }
           {props?.multipleBtn ? (
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
+                marginTop: 15
               }}
             >
               <TouchableOpacity
@@ -67,7 +107,11 @@ export default function AlertModal(props) {
                   backgroundColor: "#6d14c4",
                 }}
                 onPress={() => {
-                  props?.onPress();
+                  if (passwordTxt) {
+                    props?.onPress();
+                  } else {
+                    setError(true);
+                  }
                 }}
                 activeOpacity={1}
               >
@@ -81,7 +125,11 @@ export default function AlertModal(props) {
                 backgroundColor: "#6d14c4",
               }}
               onPress={() => {
-                props?.onPress();
+                if (passwordTxt) {
+                  props?.onPress();
+                } else {
+                  setError(true);
+                }
               }}
               activeOpacity={1}
             >
@@ -99,6 +147,21 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0,0,0,0.3)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  passwordField: {
+    flex: 1
+  },
+
+  inputCont: {
+    flexDirection: 'row',
+    borderRadius: 12,
+    borderWidth: 1,
+    width: '95%',
+    color: '#000',
+    paddingHorizontal: 15,
+  },
+  eyeImg: {
+    alignSelf: 'center'
   },
   alertBox: {
     marginHorizontal: 20,

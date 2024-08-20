@@ -3,6 +3,7 @@ import auth from "@react-native-firebase/auth";
 import * as constants from "./constants";
 import { Alert } from "react-native";
 import { setUpdateFBToken } from "../../redux/action/AppLogics";
+import { useDispatch } from "react-redux";
 
 const ProfileCollection = FireStore().collection("profiles");
 
@@ -130,15 +131,31 @@ export const logout = () => async (dispatch) => {
   }
 };
 
-export const deleteUserAccount = () => async (dispatch) => {
+export const deleteUserAccount = () => async ( password) => {
+  const dispatch = useDispatch();
   try {
     dispatch({ type: constants.LOGOUT.REQUEST });
 
     const user = auth().currentUser;
+    console.log("user --- ", user);
+    console.log("password  .....", password, "--- ");
 
     if (user) {
-      await ProfileCollection.doc(auth().currentUser.uid).delete();
-      await auth().currentUser.delete();
+      // if (password) {
+      //   const credential = auth.EmailAuthProvider.credential(
+      //     user?.email,
+      //     password,
+      //   );        
+      //   await user.reauthenticateWithCredential(credential);
+      //   console.log("Re authenticating.....");
+      // }
+
+
+      //////
+
+
+      // await ProfileCollection.doc(auth().currentUser.uid).delete();
+      // await auth().currentUser.delete();
     }
     dispatch({ type: constants.LOGOUT.SUCCESS });
   } catch (error) {

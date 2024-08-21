@@ -1,9 +1,10 @@
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 import FireStore from "@react-native-firebase/firestore";
 import FireAuth from "@react-native-firebase/auth";
 import FireStorage from "@react-native-firebase/storage";
 import ImageResizer from "react-native-image-resizer";
 import firestore from "@react-native-firebase/firestore";
+import storage from "@react-native-firebase/storage";
 
 import { setProfile } from "../../profile/redux/actions";
 import {
@@ -12,10 +13,7 @@ import {
 } from "../../discover/redux/actions";
 import * as constants from "./constants";
 import { CHALLENGE_REQUEST } from "../../suggestion/redux/constants";
-import {
-  setCreatePostFailError,
-  setIsAppLoader,
-} from "../../redux/action/AppLogics";
+import { setCreatePostFailError } from "../../redux/action/AppLogics";
 import ThreadManager from "../../ChatModule/ThreadManger";
 
 const PostsCollection = FireStore().collection("posts");
@@ -840,41 +838,52 @@ export const challengePost =
       if (items) {
         challengePost.items = await Promise.all(
           items.map(async (item, index) => {
-            let uploadMediaUrl = "";
             if (
               (typeof item?.image == "string" &&
                 item?.image.includes("https")) ||
               (typeof item?.videoObj?.video == "string" &&
                 item?.videoObj?.video.includes("https"))
             ) {
-              console.log("return--->");
               return {
                 ...item,
                 id: index,
               };
             }
             if (item?.image && item?.image?.uri != "") {
-              console.log("image------>");
-              const compressedImage = await ImageResizer.createResizedImage(
-                item?.image?.uri,
-                1000,
-                1000,
-                "PNG",
-                100,
-                0
-              );
-              const storageRef = FireStorage()
-                .ref("post_media")
-                .child(item.image.fileName);
-              await storageRef.putFile(compressedImage.uri);
-              uploadMediaUrl = await storageRef.getDownloadURL();
-
-              return {
-                id: index,
-                name: item?.name,
-                image: uploadMediaUrl,
-                description: item?.description,
-              };
+              const filename = `${ThreadManager.instance.makeid(
+                6
+              )}${item?.image?.uri.substring(
+                item?.image?.uri.lastIndexOf("/") + 1
+              )}`;
+              const uploadUri =
+                Platform.OS === "ios"
+                  ? item?.image?.uri.replace("file://", "")
+                  : item?.image?.uri;
+              const ref = storage().ref("post_media").child(filename);
+              const task = ref.putFile(uploadUri);
+              task.on("state_changed", (snapshot) => {});
+              try {
+                await task;
+                const url = await ref.getDownloadURL();
+                return {
+                  id: index,
+                  name: item?.name,
+                  image: url,
+                  description: item?.description,
+                };
+              } catch (error) {
+                console.error("Upload error:", error);
+                Alert.alert(
+                  "Upload Error",
+                  `Error uploading file: ${error?.message || error}`
+                );
+                return {
+                  id: index,
+                  name: item?.name,
+                  image: null,
+                  description: item?.description,
+                };
+              }
             } else if (item?.videoObj && item?.videoObj?.video?.uri) {
               let filename =
                 ThreadManager.instance.makeid(6) +
@@ -882,7 +891,6 @@ export const challengePost =
                   item?.videoObj?.video?.uri.lastIndexOf("/") + 1
                 );
               let uploadUri = item?.videoObj?.video?.uri.replace("file://", "");
-
               if (uploadUri.includes("mov")) {
                 let fileArr = filename.split(".");
                 const ext = fileArr[fileArr.length - 1];
@@ -890,17 +898,33 @@ export const challengePost =
                   filename = filename.replace(/mov/g, "mp4");
                 }
               }
-              const storageRef = FireStorage()
-                .ref("post_media")
-                .child(filename);
-              await storageRef.putFile(uploadUri);
-              uploadMediaUrl = await storageRef.getDownloadURL();
-              return {
-                id: index,
-                name: item?.name,
-                videoObj: { ...item?.videoObj, video: uploadMediaUrl },
-                description: item?.description,
-              };
+              const ref = storage().ref("post_media").child(filename);
+              const task = ref.putFile(uploadUri);
+              task.on("state_changed", (snapshot) => {
+                console.log("snapshot-------", snapshot);
+              });
+              try {
+                await task;
+                const url = await ref.getDownloadURL();
+                return {
+                  id: index,
+                  name: item?.name,
+                  videoObj: { ...item?.videoObj, video: url },
+                  description: item?.description,
+                };
+              } catch (error) {
+                console.error("Upload error:", error);
+                Alert.alert(
+                  "Upload Error",
+                  `Error uploading file: ${error?.message || error}`
+                );
+                return {
+                  id: index,
+                  name: item?.name,
+                  videoObj: null,
+                  description: item?.description,
+                };
+              }
             }
           })
         );
@@ -1086,8 +1110,10 @@ export const deletePost = (postId) => async (dispatch) => {
     dispatch({ type: constants.DELETE_POST.REQUEST });
     const currentUserUid = FireAuth().currentUser.uid;
     console.log("currentUserUid -- ", currentUserUid);
-    const currentUserProfiledata = await ProfilesCollection.doc(currentUserUid).get();
-    const currentUserProfile = await currentUserProfiledata.data()
+    const currentUserProfiledata = await ProfilesCollection.doc(
+      currentUserUid
+    ).get();
+    const currentUserProfile = await currentUserProfiledata.data();
 
     const isLiked = currentUserProfile.likedPosts?.find((id) => id === postId);
 

@@ -34,7 +34,6 @@ import {
 } from "../../util/AppConstant";
 import LoadingImage from "../../common/LoadingImage";
 import MediaTypeSelection from "../../common/MediaTypeSelection";
-import { Routes } from "../../util/Route";
 
 const AddChallengeListingScreen = ({ challengePost, navigation, route }) => {
   const post = route.params.post;
@@ -131,6 +130,7 @@ const AddChallengeListingScreen = ({ challengePost, navigation, route }) => {
     values["items"] = itemList?.length > 0 ? fetchItemList() : [];
     dispatch(setIsAppLoader(true));
     isBtnActive.current = false;
+    console.log("values-------", values);
     await challengePost(values, post, async (response) => {
       let authorId = post?.author?.userId || post?.author;
       if (response?.status && authorId != selector?.Auth?.user?.uid) {

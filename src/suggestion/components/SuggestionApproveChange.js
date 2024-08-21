@@ -1,12 +1,12 @@
-import React from 'react';
-import FastImage from 'react-native-fast-image'
-import { useNavigation } from '@react-navigation/native';
-import { ActivityIndicator, Image, StyleSheet, } from 'react-native';
+import React from "react";
+import FastImage from "react-native-fast-image";
+import { useNavigation } from "@react-navigation/native";
+import { ActivityIndicator, Image, StyleSheet } from "react-native";
 
-import { View, Text, Touchable } from '../../common';
-import CheckIcon from '../../assets/icons/edit-check-icon.svg';
-import CloseIcon from '../../assets/icons/edit-close-icon.svg';
-import * as Colors from '../../config/colors';
+import { View, Text, Touchable } from "../../common";
+import CheckIcon from "../../assets/icons/edit-check-icon.svg";
+import CloseIcon from "../../assets/icons/edit-close-icon.svg";
+import * as Colors from "../../config/colors";
 
 /* =============================================================================
 <SuggestionApproveChange />
@@ -29,24 +29,38 @@ const SuggestionApproveChange = ({ change, postTitle, loading, onSubmit }) => {
       </View>
       <View horizontal style={styles.item}>
         <View style={styles.indexCounter}>
-          <Text sm bold primary>{itemId === 0 ? 1 : itemId + 1}</Text>
+          <Text sm bold primary>
+            {itemId === 0 ? 1 : itemId + 1}
+          </Text>
         </View>
         <FastImage style={styles.img} source={{ uri: from?.image }} />
-        <Text sm medium>{from?.name}</Text>
-        <Text sm light>{from?.description}</Text>
+        <Text sm medium>
+          {from?.name}
+        </Text>
+        <Text sm light>
+          {from?.description}
+        </Text>
       </View>
-      <Text center bold style={styles.dividerTxt}>To</Text>
+      <Text center bold style={styles.dividerTxt}>
+        To
+      </Text>
       <View horizontal style={styles.item}>
         <View style={styles.indexCounter}>
-          <Text sm bold primary>{itemId === 0 ? 1 : itemId + 1}</Text>
+          <Text sm bold primary>
+            {itemId === 0 ? 1 : itemId + 1}
+          </Text>
         </View>
         <FastImage style={styles.img} source={{ uri: to?.image }} />
-        <Text sm medium>{to?.name}</Text>
-        <Text sm light>{to?.description}</Text>
+        <Text sm medium>
+          {to?.name}
+        </Text>
+        <Text sm light>
+          {to?.description}
+        </Text>
       </View>
       <View horizontal center>
         {loading ? (
-          <ActivityIndicator color={Colors.primary} size='small' />
+          <ActivityIndicator color={Colors.primary} size="small" />
         ) : (
           <Touchable style={styles.actionBtn} onPress={onSubmit}>
             <CheckIcon stroke="#6d14c4" />
@@ -62,14 +76,14 @@ const SuggestionApproveChange = ({ change, postTitle, loading, onSubmit }) => {
 
 const styles = StyleSheet.create({
   infoContainer: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   item: {
     marginTop: 10,
     paddingBottom: 10,
     borderBottomWidth: 0.3,
-    borderBottomColor: '#999',
-    justifyContent: 'space-between',
+    borderBottomColor: "#999",
+    justifyContent: "space-between",
   },
   img: {
     width: 55,
@@ -82,14 +96,14 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     paddingTop: 2,
     borderRadius: 30 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   dividerTxt: {
     marginVertical: 20,
   },
   changeFieldContainer: {
-    width: '100%',
+    width: "100%",
     borderRadius: 20,
   },
   indexCounter: {
@@ -99,8 +113,8 @@ const styles = StyleSheet.create({
     paddingTop: 2,
     marginRight: 5,
     borderRadius: 30 / 2,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   inputContainer: {
     flex: 1,

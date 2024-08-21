@@ -2,7 +2,14 @@ import React, { useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import FireAuth from "@react-native-firebase/auth";
 import FireStorage from "@react-native-firebase/storage";
-import { Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  Alert,
+  Image,
+  Platform,
+  StyleSheet,
+  TouchableOpacity,
+} from "react-native";
+import storage from "@react-native-firebase/storage";
 
 import {
   View,
@@ -68,8 +75,7 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
       await uploadMedia((rep) => {
         mediaUrl = rep;
       });
-      console.log("mediaUrl --- ", mediaUrl);
-      
+
       let singleItem = {
         name,
         description,
@@ -96,6 +102,7 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
         },
         authorId,
       };
+      console.log("payload------", payload);
       await suggestPost(payload, async () => {
         if (authorId != selector?.Auth?.user?.uid) {
           await suggestionAtPost(
@@ -116,39 +123,49 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
     }
     dispatch(setIsAppLoader(false));
   };
+
   const uploadMedia = async (onComplete) => {
     let obj = null;
     if (
       (typeof mediaObj == "string" && mediaObj.includes("https")) ||
       (typeof mediaObj?.video == "string" && mediaObj?.video.includes("https"))
-    ) {      
+    ) {
       obj = {
         ...mediaObj,
       };
     }
-    if (mediaObj?.uri != "" && mediaObj?.thumbnail) {
-      const compressedImage = await ImageResizer.createResizedImage(
-        mediaObj?.uri,
-        1000,
-        1000,
-        "PNG",
-        100,
-        0
-      );
-      const storageRef = FireStorage()
-        .ref("post_media")
-        .child(mediaObj?.fileName);
-      await storageRef.putFile(compressedImage.uri);
-      obj = await storageRef.getDownloadURL();
+    if (mediaObj?.uri != "" && !mediaObj?.thumbnail) {
+      const filename = `${ThreadManager.instance.makeid(
+        6
+      )}${mediaObj?.uri.substring(mediaObj?.uri.lastIndexOf("/") + 1)}`;
+      const uploadUri =
+        Platform.OS === "ios"
+          ? mediaObj?.uri.replace("file://", "")
+          : mediaObj?.uri;
+      const ref = storage().ref("post_media").child(filename);
+      const task = ref.putFile(uploadUri);
+      task.on("state_changed", (snapshot) => {});
+      try {
+        await task;
+        const url = await ref.getDownloadURL();
+        onComplete(url);
+      } catch (error) {
+        console.error("Upload error:", error);
+        Alert.alert(
+          "Upload Error",
+          `Error uploading file: ${error?.message || error}`
+        );
+        onComplete(null);
+      }
     } else if (mediaObj?.video?.uri) {
-      let uploadMediaUrl = "";
       let filename =
         ThreadManager.instance.makeid(6) +
         mediaObj?.video?.uri.substring(
           mediaObj?.video?.uri.lastIndexOf("/") + 1
         );
       let uploadUri = mediaObj?.video?.uri.replace("file://", "");
-
+      console.log("uploadUri--------", uploadUri);
+      console.log("filename--0-------", filename);
       if (uploadUri.includes("mov")) {
         let fileArr = filename.split(".");
         const ext = fileArr[fileArr.length - 1];
@@ -156,16 +173,32 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
           filename = filename.replace(/mov/g, "mp4");
         }
       }
-      const storageRef = FireStorage().ref("post_media").child(filename);
-      await storageRef.putFile(uploadUri);
-      uploadMediaUrl = await storageRef.getDownloadURL();
-      obj = {
-        ...mediaObj,
-        video: uploadMediaUrl,
-      };
+      const ref = storage().ref("post_media").child(filename);
+      const task = ref.putFile(uploadUri);
+      task.on("state_changed", (snapshot) => {
+        console.log("snapshot-------", snapshot);
+      });
+      try {
+        await task;
+        const url = await ref.getDownloadURL();
+        obj = {
+          ...mediaObj,
+          video: url,
+        };
+        onComplete(obj);
+      } catch (error) {
+        console.error("Upload error:", error);
+        Alert.alert(
+          "Upload Error",
+          `Error uploading file: ${error?.message || error}`
+        );
+        onComplete(null);
+      }
+    } else {
+      onComplete(null);
     }
-    onComplete(obj);
   };
+
   const uploadThumnail = async (path, onComlpete) => {
     await ThreadManager.instance.uploadMedia(path, false, (url) => {
       if (url !== "error") {

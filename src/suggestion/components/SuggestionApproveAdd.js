@@ -1,19 +1,21 @@
-import React from 'react';
-import FastImage from 'react-native-fast-image'
-import { ActivityIndicator, Image, StyleSheet, } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React from "react";
+import FastImage from "react-native-fast-image";
+import { ActivityIndicator, Image, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 
-import { View, Text, Touchable } from '../../common';
-import CheckIcon from '../../assets/icons/edit-check-icon.svg';
-import CloseIcon from '../../assets/icons/edit-close-icon.svg';
-import * as Colors from '../../config/colors';
+import { View, Text, Touchable } from "../../common";
+import CheckIcon from "../../assets/icons/edit-check-icon.svg";
+import CloseIcon from "../../assets/icons/edit-close-icon.svg";
+import * as Colors from "../../config/colors";
+import LoadingImage from "../../common/LoadingImage";
 
 /* =============================================================================
 <SuggestionApproveAdd />
 ============================================================================= */
 const SuggestionApproveAdd = ({ change, postTitle, loading, onSubmit }) => {
   const navigation = useNavigation();
-  const item = change?.item
+  const item = change?.item;
+  console.log("change-------", change);
 
   const _handleGoBack = () => {
     navigation.goBack();
@@ -26,13 +28,17 @@ const SuggestionApproveAdd = ({ change, postTitle, loading, onSubmit }) => {
         <Text bold>List Title: {postTitle}</Text>
       </View>
       <View horizontal style={styles.item}>
-        <FastImage style={styles.img} source={{ uri: item?.image }} />
-        <Text sm medium>{item?.name}</Text>
-        <Text sm light>{item?.description}</Text>
+        <LoadingImage source={{ uri: `${item?.image}` }} style={styles.img} />
+        <Text sm medium>
+          {item?.name}
+        </Text>
+        <Text sm light>
+          {item?.description}
+        </Text>
       </View>
       <View horizontal center>
         {loading ? (
-          <ActivityIndicator color={Colors.primary} size='small' />
+          <ActivityIndicator color={Colors.primary} size="small" />
         ) : (
           <Touchable style={styles.actionBtn} onPress={onSubmit}>
             <CheckIcon stroke="#6d14c4" />
@@ -48,14 +54,14 @@ const SuggestionApproveAdd = ({ change, postTitle, loading, onSubmit }) => {
 
 const styles = StyleSheet.create({
   infoContainer: {
-    justifyContent: 'space-between',
+    justifyContent: "space-between",
   },
   item: {
     marginTop: 10,
     paddingBottom: 10,
     borderBottomWidth: 0.3,
-    borderBottomColor: '#999',
-    justifyContent: 'space-between',
+    borderBottomColor: "#999",
+    justifyContent: "space-between",
   },
   img: {
     width: 66,

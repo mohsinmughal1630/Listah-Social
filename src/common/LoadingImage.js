@@ -12,9 +12,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFullImageLink, showFullImage } from "../home/redux/appLogics";
 
 const LoadingImage = (props) => {
-  // console.log(props.source);
   const [loading, setLoading] = useState(false);
-  const [src, setSource] = useState(props.source);
+  const [src, setSource] = useState(props?.source);
   const selector = useSelector((AppState) => AppState);
   const dispatch = useDispatch();
 

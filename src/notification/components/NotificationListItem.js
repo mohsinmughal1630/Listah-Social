@@ -27,7 +27,9 @@ const NotificationListItem = ({ notification }) => {
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
 
   const navigation = useNavigation();
-  const type = notification?.type;
+  const type = notification?.type || notification?.actionType;
+
+  console.log("type-------", type);
 
   const _handleSuggestionPress = () => {
     if (notification.payload) {
@@ -38,7 +40,7 @@ const NotificationListItem = ({ notification }) => {
     }
   };
 
-  if (type === "suggestion") {
+  if (type === "suggestion" || type === "Suggestion") {
     return (
       <Touchable
         horizontal

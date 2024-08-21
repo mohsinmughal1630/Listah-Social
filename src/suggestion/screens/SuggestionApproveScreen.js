@@ -1,19 +1,14 @@
-import React, { useState } from 'react';
-import { Alert } from 'react-native';
-import { connect } from 'react-redux';
+import React, { useState } from "react";
+import { Alert } from "react-native";
+import { connect } from "react-redux";
 
-import {
-  Content,
-  Container,
-  StackHeader,
-  Text,
-} from '../../common';
+import { Content, Container, StackHeader, Text } from "../../common";
 
-import SuggestionApproveChange from '../components/SuggestionApproveChange';
-import SuggestionApproveAdd from '../components/SuggestionApproveAdd';
-import SuggestionApproveDelete from '../components/SuggestionApproveDelete';
+import SuggestionApproveChange from "../components/SuggestionApproveChange";
+import SuggestionApproveAdd from "../components/SuggestionApproveAdd";
+import SuggestionApproveDelete from "../components/SuggestionApproveDelete";
 
-import { suggestApprove as suggestApproveAction } from '../redux/actions';
+import { suggestApprove as suggestApproveAction } from "../redux/actions";
 
 /* =============================================================================
 <SuggestionApproveScreen />
@@ -30,12 +25,10 @@ const SuggestionApproveScreen = ({ route, navigation, suggestApprove }) => {
     await suggestApprove(suggestion, async () => {
       setLoading(false);
       Alert.alert(
-        'Suggestion Approved',
+        "Suggestion Approved",
         `${senderUsername} suggestion is approved`,
-        [
-          { text: 'OK', onPress: () => navigation.goBack() }
-        ],
-      )
+        [{ text: "OK", onPress: () => navigation.goBack() }]
+      );
     });
   };
 
@@ -43,21 +36,21 @@ const SuggestionApproveScreen = ({ route, navigation, suggestApprove }) => {
     <Container>
       <StackHeader title={`${senderUsername} Suggestion`} />
       <Content>
-        {change?.type === 'change' ? (
+        {change?.type === "change" ? (
           <SuggestionApproveChange
             loading={loading}
             change={change}
             postTitle={postTitle}
             onSubmit={_handleSubmit}
           />
-        ) : change?.type === 'add' ? (
+        ) : change?.type === "add" ? (
           <SuggestionApproveAdd
             loading={loading}
             change={change}
             postTitle={postTitle}
             onSubmit={_handleSubmit}
           />
-        ) : change?.type === 'delete' ? (
+        ) : change?.type === "delete" ? (
           <SuggestionApproveDelete
             loading={loading}
             change={change}

@@ -6,6 +6,7 @@ import {
   ActivityIndicator,
   useColorScheme,
   Appearance,
+  Alert,
 } from "react-native";
 import FirebaseAuth from "@react-native-firebase/auth";
 import { NavigationContainer } from "@react-navigation/native";
@@ -50,6 +51,10 @@ import { Routes } from "../util/Route";
 import PostDetailScreen from "../Post/Screens/PostDetailScreen";
 import ReportPost from "../home/screens/ReportPost";
 import ToastComp from "../common/ToastComp";
+import {
+  checkNotifications,
+  requestNotifications,
+} from "react-native-permissions";
 const Stack = createNativeStackNavigator();
 
 /* =============================================================================
@@ -88,19 +93,6 @@ const AppNavigation = ({ changeAuthState, getProfile, authenticated }) => {
           isDark ? Theme_Types.deviceDarkMode : Theme_Types.deviceLightMode
         );
         dispatch(setThemeType(isDark ? Theme_Mode.isDark : Theme_Mode.isLight));
-
-        // subscribeThemeListener = Appearance.addChangeListener(
-        //   ({ colorScheme }) => {
-        //     console.log("colorScheme------->", colorScheme);
-        //     if (colorScheme === "light") {
-        //       saveThemeType(Theme_Types.deviceLightMode);
-        //       dispatch(setThemeType(Theme_Mode.isLight));
-        //     } else {
-        //       saveThemeType(Theme_Types.deviceDarkMode);
-        //       dispatch(setThemeType(Theme_Mode.isDark));
-        //     }
-        //   }
-        // );
       }
       return () => {
         subscribeThemeListener.remove()
@@ -199,6 +191,29 @@ const AppNavigation = ({ changeAuthState, getProfile, authenticated }) => {
   const registerDevice = async () => {
     if (Platform.OS == "ios") {
       await getPermissionsForNotification();
+    } else {
+      requestNotificationPermission();
+    }
+  };
+
+  const requestNotificationPermission = async () => {
+    if (Platform.OS === "android" && Platform.Version >= 33) {
+      const { status } = await checkNotifications();
+      if (status !== "granted") {
+        const { status: newStatus } = await requestNotifications([
+          "alert",
+          "sound",
+        ]);
+
+        if (!newStatus === "granted") {
+          Alert.alert(
+            "Notification Permission",
+            "Notification permissions are required to receive notifications. Please enable them in settings."
+          );
+        }
+      } else {
+        getToken();
+      }
     } else {
       getToken();
     }

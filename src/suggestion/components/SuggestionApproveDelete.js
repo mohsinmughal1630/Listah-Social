@@ -6,6 +6,7 @@ import { View, Text, Touchable } from "../../common";
 import CheckIcon from "../../assets/icons/edit-check-icon.svg";
 import CloseIcon from "../../assets/icons/edit-close-icon.svg";
 import * as Colors from "../../config/colors";
+import LoadingImage from "../../common/LoadingImage";
 
 /* =============================================================================
 <SuggestionApproveDelete />
@@ -25,7 +26,8 @@ const SuggestionApproveDelete = ({ change, postTitle, loading, onSubmit }) => {
         <Text bold>List Title: {postTitle}</Text>
       </View>
       <View horizontal style={styles.item}>
-        <Image style={styles.img} source={{ uri: item?.image }} />
+        <LoadingImage source={{ uri: `${item?.image}` }} style={styles.img} />
+
         <Text sm medium>
           {item?.name}
         </Text>

@@ -337,7 +337,7 @@ const useNotificationManger = (props) => {
         .update({ notification_List: newArr })
         .then(() => {
           console.log("udated reciever data --- ", updatedReciverData);
-          
+
           if (updatedReciverData?.fcmToken) {
             sendPushNoti(newObj, updatedReciverData?.fcmToken);
           }
@@ -350,7 +350,7 @@ const useNotificationManger = (props) => {
   const sendPushNoti = async (obj, fcmToken) => {
     let title = selector?.Profile?.profile?.username;
     console.log(("notification send --- ", obj));
-    
+
     if (fcmToken) {
       let notification = {
         title: title,

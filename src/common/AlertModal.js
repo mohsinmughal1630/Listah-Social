@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { Image, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Image,
+  Modal,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { useSelector } from "react-redux";
 import { Theme_Mode } from "../util/Strings";
 import {
@@ -12,13 +20,12 @@ import {
 
 export default function AlertModal(props) {
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
-  const [secureEntry, setSecureEntry] = useState(true)
-  const [passwordTxt, setPasswordTxt] = useState(props?.password)
-  const [error, setError] = useState(false)
+  const [secureEntry, setSecureEntry] = useState(true);
+  const [passwordTxt, setPasswordTxt] = useState(props?.password);
+  const [error, setError] = useState(false);
 
   return (
     <Modal animationType={"slide"} visible={props?.visible} transparent={true}>
-
       <View
         style={{
           ...styles.container,
@@ -26,7 +33,7 @@ export default function AlertModal(props) {
             themeType == Theme_Mode.isDark
               ? "rgba(0,0,0,0.6)"
               : "rgba(0,0,0,0.3)",
-          zIndex: 0
+          zIndex: 0,
         }}
       >
         <View
@@ -38,8 +45,11 @@ export default function AlertModal(props) {
                 : lightModeColors.background,
           }}
         >
-
-          <Text style={styles.title}>Confirm Account Deletion</Text>
+          <Text style={styles.title}>
+            {props?.type == "delete_account"
+              ? "Confirm Account Deletion"
+              : "Alert"}
+          </Text>
           <Text
             style={{
               ...styles.label,
@@ -52,44 +62,49 @@ export default function AlertModal(props) {
             {props?.message}
           </Text>
 
-          {props?.type == 'delete_account' &&
-            <View style={{
-              ...styles.inputCont,
-              borderColor: error ? AppColors.red.dark : AppColors.blue.navy,
-              backgroundColor: error ? AppColors.pink.light : AppColors.white.white
-            }}>
+          {props?.type == "delete_account" && (
+            <View
+              style={{
+                ...styles.inputCont,
+                borderColor: error ? AppColors.red.dark : AppColors.blue.navy,
+                backgroundColor: error
+                  ? AppColors.pink.light
+                  : AppColors.white.white,
+              }}
+            >
               <TextInput
                 value={props?.password}
                 onChangeText={(e) => {
                   props?.setPassword(e);
                   setPasswordTxt(e);
-                  setError(false)
+                  setError(false);
                 }}
                 style={styles.passwordField}
                 placeholder="Password"
-                placeholderTextColor={'black'}
+                placeholderTextColor={"black"}
                 secureTextEntry={secureEntry}
-
               />
               <TouchableOpacity
                 onPress={() => setSecureEntry(!secureEntry)}
                 style={styles.eyeImg}
               >
                 <Image
-                  source={secureEntry ? AppImages.Auth.eye : AppImages.Auth.closeEye}
-                  resizeMode='contain'
+                  source={
+                    secureEntry ? AppImages.Auth.eye : AppImages.Auth.closeEye
+                  }
+                  resizeMode="contain"
                   tintColor={AppColors.blue.navy}
                 />
               </TouchableOpacity>
             </View>
-          }
+          )}
           {props?.multipleBtn ? (
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginTop: 15
+                marginTop: 15,
               }}
             >
               <TouchableOpacity
@@ -125,10 +140,14 @@ export default function AlertModal(props) {
                 backgroundColor: "#6d14c4",
               }}
               onPress={() => {
-                if (passwordTxt) {
-                  props?.onPress();
+                if (props?.type == "delete_account") {
+                  if (passwordTxt) {
+                    props?.onPress();
+                  } else {
+                    setError(true);
+                  }
                 } else {
-                  setError(true);
+                  props?.onPress();
                 }
               }}
               activeOpacity={1}
@@ -149,19 +168,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   passwordField: {
-    flex: 1
+    flex: 1,
   },
 
   inputCont: {
-    flexDirection: 'row',
+    flexDirection: "row",
     borderRadius: 12,
     borderWidth: 1,
-    width: '95%',
-    color: '#000',
+    width: "95%",
+    color: "#000",
     paddingHorizontal: 15,
   },
   eyeImg: {
-    alignSelf: 'center'
+    alignSelf: "center",
   },
   alertBox: {
     marginHorizontal: 20,

@@ -1,16 +1,8 @@
 import { connect, useDispatch, useSelector } from "react-redux";
 import React, { useState } from "react";
-import FastImage from "react-native-fast-image";
 import FireAuth from "@react-native-firebase/auth";
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  StyleSheet,
-  TouchableOpacity,
-} from "react-native";
-import FireStorage from "@react-native-firebase/storage";
-
+import { Alert, Image, StyleSheet, TouchableOpacity } from "react-native";
+import storage from "@react-native-firebase/storage";
 import {
   View,
   Text,
@@ -23,7 +15,6 @@ import {
 
 import UploadIcon from "../../assets/icons/edit-upload-icon.svg";
 import CheckIcon from "../../assets/icons/edit-check-icon.svg";
-import * as Colors from "../../config/colors";
 
 import { suggestPost as suggestPostAction } from "../redux/actions";
 import useNotificationManger from "../../hooks/useNotificationManger";
@@ -46,7 +37,6 @@ import MediaTypeSelection from "../../common/MediaTypeSelection";
 import MediaPickerModal from "../../common/MediaPickerModal";
 import ThreadManager from "../../ChatModule/ThreadManger";
 import { createThumbnail } from "react-native-create-thumbnail";
-import { Routes } from "../../util/Route";
 
 /* =============================================================================
 <SuggestionChangeScreen />
@@ -135,29 +125,37 @@ const SuggestionChangeScreen = ({ route, navigation, suggestPost }) => {
         ...mediaObj,
       };
     }
+
     if (mediaObj?.uri != "" && !mediaObj?.thumbnail) {
-      const compressedImage = await ImageResizer.createResizedImage(
-        mediaObj?.uri,
-        1000,
-        1000,
-        "PNG",
-        100,
-        0
-      );
-      const storageRef = FireStorage()
-        .ref("post_media")
-        .child(mediaObj?.fileName);
-      await storageRef.putFile(compressedImage.uri);
-      obj = await storageRef.getDownloadURL();
+      const filename = `${ThreadManager.instance.makeid(
+        6
+      )}${mediaObj?.uri.substring(mediaObj?.uri.lastIndexOf("/") + 1)}`;
+      const uploadUri =
+        Platform.OS === "ios"
+          ? mediaObj?.uri.replace("file://", "")
+          : mediaObj?.uri;
+      const ref = storage().ref("post_media").child(filename);
+      const task = ref.putFile(uploadUri);
+      task.on("state_changed", (snapshot) => {});
+      try {
+        await task;
+        const url = await ref.getDownloadURL();
+        onComplete(url);
+      } catch (error) {
+        console.error("Upload error:", error);
+        Alert.alert(
+          "Upload Error",
+          `Error uploading file: ${error?.message || error}`
+        );
+        onComplete(null);
+      }
     } else if (mediaObj?.video?.uri) {
-      let uploadMediaUrl = "";
       let filename =
         ThreadManager.instance.makeid(6) +
         mediaObj?.video?.uri.substring(
           mediaObj?.video?.uri.lastIndexOf("/") + 1
         );
       let uploadUri = mediaObj?.video?.uri.replace("file://", "");
-
       if (uploadUri.includes("mov")) {
         let fileArr = filename.split(".");
         const ext = fileArr[fileArr.length - 1];
@@ -165,15 +163,30 @@ const SuggestionChangeScreen = ({ route, navigation, suggestPost }) => {
           filename = filename.replace(/mov/g, "mp4");
         }
       }
-      const storageRef = FireStorage().ref("post_media").child(filename);
-      await storageRef.putFile(uploadUri);
-      uploadMediaUrl = await storageRef.getDownloadURL();
-      obj = {
-        ...mediaObj,
-        video: uploadMediaUrl,
-      };
+      const ref = storage().ref("post_media").child(filename);
+      const task = ref.putFile(uploadUri);
+      task.on("state_changed", (snapshot) => {
+        console.log("snapshot-------", snapshot);
+      });
+      try {
+        await task;
+        const url = await ref.getDownloadURL();
+        obj = {
+          ...mediaObj,
+          video: url,
+        };
+        onComplete(obj);
+      } catch (error) {
+        console.error("Upload error:", error);
+        Alert.alert(
+          "Upload Error",
+          `Error uploading file: ${error?.message || error}`
+        );
+        onComplete(null);
+      }
+    } else {
+      onComplete(null);
     }
-    onComplete(obj);
   };
   const uploadThumnail = async (path, onComlpete) => {
     await ThreadManager.instance.uploadMedia(path, false, (url) => {

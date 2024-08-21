@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import FireAuth from "@react-native-firebase/auth";
-import FireStorage from "@react-native-firebase/storage";
 import {
   Alert,
   Image,
@@ -33,7 +32,6 @@ import useNotificationManger from "../../hooks/useNotificationManger";
 import MediaTypeSelection from "../../common/MediaTypeSelection";
 import VideoPlayerModal from "../../common/VideoPlayerModal";
 import MediaPickerModal from "../../common/MediaPickerModal";
-import { Routes } from "../../util/Route";
 import {
   AppColors,
   AppImages,
@@ -43,7 +41,6 @@ import {
 } from "../../util/AppConstant";
 import LoadingImage from "../../common/LoadingImage";
 import { setIsAppLoader } from "../../redux/action/AppLogics";
-import ImageResizer from "react-native-image-resizer";
 import { createThumbnail } from "react-native-create-thumbnail";
 import ThreadManager from "../../ChatModule/ThreadManger";
 
@@ -102,7 +99,6 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
         },
         authorId,
       };
-      console.log("payload------", payload);
       await suggestPost(payload, async () => {
         if (authorId != selector?.Auth?.user?.uid) {
           await suggestionAtPost(
@@ -164,8 +160,6 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
           mediaObj?.video?.uri.lastIndexOf("/") + 1
         );
       let uploadUri = mediaObj?.video?.uri.replace("file://", "");
-      console.log("uploadUri--------", uploadUri);
-      console.log("filename--0-------", filename);
       if (uploadUri.includes("mov")) {
         let fileArr = filename.split(".");
         const ext = fileArr[fileArr.length - 1];

@@ -35,12 +35,13 @@ const NotificationScreen = ({ notifications, getNotifications }) => {
   // GET_NOTIFICATIONS
   useEffect(() => {
     if (isFocused) {
-      setIsLoader(true);
+      notificationList.length==0 && setIsLoader(true);
       setMessageIsRead();
       fetchNotificationList((response) => {
-        console.log("response---->", response);
         if (response?.length > 0) {
-          setNotificationList(response);
+          
+          setNotificationList(response.reverse());
+          setIsLoader(false);
         } else {
           setNotificationList([]);
         }
@@ -77,7 +78,7 @@ const NotificationScreen = ({ notifications, getNotifications }) => {
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={notificationList?.reverse()}
+          data={notificationList}
           renderItem={renderItem}
           keyExtractor={renderKeyExtractor}
           contentContainerStyle={styles.content}

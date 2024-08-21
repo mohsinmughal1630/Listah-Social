@@ -273,10 +273,10 @@ const PostCreateScreen = ({
         description: "",
       });
       setShowAddBtn(true);
-      setItemList(newArr);      
-      if(newArr?.length == 10){
-        setShowAddBtn(false)
-      } 
+      setItemList(newArr);
+      if (newArr?.length == 10) {
+        setShowAddBtn(false);
+      }
     }
   };
   const _handleRemove = (index) => {
@@ -303,16 +303,8 @@ const PostCreateScreen = ({
       isBtnActive.current = false;
       setTitleError("!Empty Field");
     }
-    // if (des == "") {
-    //   isBtnActive.current = false;
-    //   setDesError("!Empty Field");
-    // }
 
-    if (
-      title?.length == 0 ||
-      // des?.length == 0 ||
-      selectedcategory?.length == 0
-    ) {
+    if (title?.length == 0 || selectedcategory?.length == 0) {
       isBtnActive.current = false;
       return;
     }

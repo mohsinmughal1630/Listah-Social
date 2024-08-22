@@ -116,6 +116,10 @@ const SuggestionChangeScreen = ({ route, navigation, suggestPost }) => {
   };
 
   const uploadMedia = async (onComplete) => {
+    if (mediaObj == null) {
+      onComplete(null);
+      return;
+    }
     let obj = null;
     if (
       (typeof mediaObj == "string" && mediaObj.includes("https")) ||

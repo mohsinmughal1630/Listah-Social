@@ -557,14 +557,12 @@ export const createAnnouncementPost =
       if (items) {
         post.items = await Promise.all(
           items.map(async (item, index) => {
-            let uploadMediaUrl = "";
             if (
               (typeof item?.image == "string" &&
                 item?.image.includes("https")) ||
               (typeof item?.videoObj?.video == "string" &&
                 item?.videoObj?.video.includes("https"))
             ) {
-              console.log("return--->");
               return {
                 ...item,
                 id: index,
@@ -968,6 +966,12 @@ export const challengePost =
                   description: item?.description,
                 };
               }
+            } else {
+              return {
+                id: index,
+                name: item?.name,
+                description: item?.description,
+              };
             }
           })
         );
@@ -1049,13 +1053,11 @@ export const updatePost = (changes) => async (dispatch) => {
     if (post?.items) {
       post.items = await Promise.all(
         post?.items.map(async (item, index) => {
-          let uploadMediaUrl = "";
           if (
             (typeof item?.image == "string" && item?.image.includes("https")) ||
             (typeof item?.videoObj?.video == "string" &&
               item?.videoObj?.video.includes("https"))
           ) {
-            console.log("return--->");
             return {
               ...item,
               id: index,

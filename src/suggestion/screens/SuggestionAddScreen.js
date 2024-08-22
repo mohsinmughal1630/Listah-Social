@@ -69,6 +69,7 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
     if (disabled) {
       dispatch(setIsAppLoader(true));
       let mediaUrl = null;
+
       await uploadMedia((rep) => {
         mediaUrl = rep;
       });
@@ -121,6 +122,10 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
   };
 
   const uploadMedia = async (onComplete) => {
+    if (mediaObj == null) {
+      onComplete(null);
+      return;
+    }
     let obj = null;
     if (
       (typeof mediaObj == "string" && mediaObj.includes("https")) ||
@@ -130,6 +135,7 @@ const SuggestionAddScreen = ({ route, navigation, suggestPost }) => {
         ...mediaObj,
       };
     }
+
     if (mediaObj?.uri != "" && !mediaObj?.thumbnail) {
       const filename = `${ThreadManager.instance.makeid(
         6

@@ -33,6 +33,8 @@ import {
 import moment from "moment";
 import ThreadManager from "../../../ChatModule/ThreadManger";
 import { Theme_Mode } from "../../../util/Strings";
+import { useNavigation } from "@react-navigation/native";
+import { fetchPostData } from "../../../network/Services/ProfileServices";
 /* =============================================================================
 <PostItem />
 ============================================================================= */
@@ -50,25 +52,13 @@ const PostItem = ({
   openVideoModal,
 }) => {
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
-  const postItems =
-    post?.order && post.order == "1" ? post?.items : post?.items?.reverse();
 
-  const challengePostItems = post.challenge
-    ? post.challenge.order == "1"
-      ? post.challenge.items
-      : post.challenge.items.reverse()
-    : [];
+  const navigation = useNavigation();
+
   const B = (props) => (
     <Text style={{ fontWeight: "bold", fontSize: 18 }}>{props.children}</Text>
   );
   const [showLikeUserModal, setLikeUserModalVisible] = useState(false);
-  const [challengeItems, setChallengeItems] = useState(
-    post.challenge && post.challenge.items
-      ? post.challenge.items.length > 3
-        ? post.challenge.items.slice(0, 3)
-        : post.challenge.items
-      : []
-  );
   const [time, setTime] = useState("");
   const [loading, setLoading] = useState(false);
   const [challengeLikeLoading, setChallengeLoading] = useState(false);
@@ -158,15 +148,16 @@ const PostItem = ({
       setChallengeLiked(isChallengeLiked);
     }
   }, []);
+
   if (!post) {
     return (
       <Card style={styles.container}>
-        <PostItemHeader 
-        />
+        <PostItemHeader />
         <Text center>Post no longer available</Text>
       </Card>
     );
   }
+
   return (
     <ScrollView
       nestedScrollEnabled
@@ -363,8 +354,19 @@ const PostItem = ({
             }
           }}
           likeUserOpenClicked={() => {
-            console.log("printPost -- > ", post);
             setLikeUserModalVisible((prev) => true);
+          }}
+          atSuggestionPost={async () => {
+            await fetchPostData(post?.id, (res) => {
+              navigation.navigate("SuggestionStack", {
+                screen: "SelectSuggestion",
+                params: {
+                  id,
+                  type: "home",
+                  post: { ...post, items: res?.items },
+                },
+              });
+            });
           }}
         />
       )}

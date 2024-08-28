@@ -32,6 +32,7 @@ const SelectSuggestionScreen = ({ mpost, navigation, route }) => {
   const post = route?.params?.post;
   const [selected, setSelected] = useState();
   const items = post?.items;
+
   const authorId = post?.author?.userId;
   const postId = post?.id;
   const postTitle = post?.title;

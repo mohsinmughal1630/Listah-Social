@@ -35,7 +35,6 @@ import {
   AppColors,
   AppImages,
   darkModeColors,
-  lightModeColors,
   normalized,
 } from "../../util/AppConstant";
 import CustomHeader from "../../common/CommonHeader";
@@ -211,7 +210,6 @@ const HomeScreen = ({ posts, getProfile }) => {
               </Text>
             )
           )
-
           // homePosts.length == 0 && <Text sm center>You don't have any followers. follow people to see there posts</Text>
         }
       </View>

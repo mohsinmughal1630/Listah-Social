@@ -38,12 +38,9 @@ import {
 import { CHALLENGE_REQUEST } from "../../../suggestion/redux/constants";
 import { Notification_Types, Theme_Mode } from "../../../util/Strings";
 import useNotificationManger from "../../../hooks/useNotificationManger";
-import ThreadManager from "../../../ChatModule/ThreadManger";
-import moment from "moment";
 import { normalized } from "../../../util/AppConstant";
 
 /* =============================================================================
-<PostActions />
 ============================================================================= */
 const PostActions = ({
   id,
@@ -51,6 +48,7 @@ const PostActions = ({
   profile,
   postRefresh,
   likeUserOpenClicked,
+  atSuggestionPost,
 }) => {
   const selector = useSelector((AppState) => AppState);
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
@@ -100,8 +98,8 @@ const PostActions = ({
   };
 
   const _toggleCommentModal = (count = 0) => {
-    console.log("comments counter ---- " , count);
-    
+    console.log("comments counter ---- ", count);
+
     setCommentsCount(count);
     setCommentModal((prevState) => !prevState);
   };
@@ -131,10 +129,7 @@ const PostActions = ({
     if (FireAuth().currentUser.uid === authorId) {
       toast.show("Post Author can't suggest");
     } else {
-      navigation.navigate("SuggestionStack", {
-        screen: "SelectSuggestion",
-        params: { id, type: "home", post: post },
-      });
+      atSuggestionPost();
     }
   };
 
@@ -236,10 +231,12 @@ const PostActions = ({
           id={id}
           post={post}
           visible={commentModal}
-          onClose={()=>{_toggleCommentModal(commentsCount)}}
+          onClose={() => {
+            _toggleCommentModal(commentsCount);
+          }}
           postRefresh={postRefresh}
-          commentsCount = {commentsCount}
-          setCommentsCounter = {setCommentsCount}
+          commentsCount={commentsCount}
+          setCommentsCounter={setCommentsCount}
         />
       )}
     </View>

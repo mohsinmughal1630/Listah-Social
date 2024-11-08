@@ -14,8 +14,6 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import ImageResizer from "react-native-image-resizer";
-import FireStore from "@react-native-firebase/storage";
 import CheckBox from "@react-native-community/checkbox";
 
 import ChevronLeftIcon from "../../assets/icons/edit-chevron-left.svg";
@@ -104,8 +102,6 @@ const RegisterScreen = ({ register, navigation }) => {
       if (regex.test(password)) {
         setLoading(true);
         await uploadMedia(image.uri, "profile_pics", async (url) => {
-          console.log("url-------->", url);
-
           if (url) {
             await register({
               email,

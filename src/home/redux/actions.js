@@ -1,8 +1,6 @@
 import { Alert, Platform } from "react-native";
 import FireStore from "@react-native-firebase/firestore";
 import FireAuth from "@react-native-firebase/auth";
-import FireStorage from "@react-native-firebase/storage";
-import ImageResizer from "react-native-image-resizer";
 import firestore from "@react-native-firebase/firestore";
 import storage from "@react-native-firebase/storage";
 

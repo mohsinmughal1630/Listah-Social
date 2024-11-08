@@ -5,7 +5,6 @@ import storage from "@react-native-firebase/storage";
 export const uploadMedia = async (uri, storageRef, onComplete) => {
   const filename = generateFilename(uri);
   const uploadUri = normalizeUri(uri);
-  console.log("uploadUri--------->", uploadUri, "---------", filename);
   const ref = storage().ref(storageRef).child(filename);
   const task = ref.putFile(uploadUri);
   task.on("state_changed", (snapshot) => {});

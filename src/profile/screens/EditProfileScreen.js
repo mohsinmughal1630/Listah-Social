@@ -1,9 +1,6 @@
 import React, { useState } from "react";
 import { connect, useSelector } from "react-redux";
-import { StyleSheet } from "react-native";
-import ImageResizer from "react-native-image-resizer";
-import FireStore from "@react-native-firebase/storage";
-
+import { Alert, StyleSheet } from "react-native";
 import {
   View,
   Button,
@@ -17,8 +14,9 @@ import * as Colors from "../../config/colors";
 
 import { getProfile, getLoading } from "../redux/selectors";
 import { updateProfile as updateProfileAction } from "../redux/actions";
-import { Theme_Mode } from "../../util/Strings";
+import { AppStrings, Theme_Mode } from "../../util/Strings";
 import { darkModeColors, lightModeColors } from "../../util/AppConstant";
+import { uploadMedia } from "../../network/Services/GeneralServices";
 
 /* =============================================================================
 <EditProfileScreen />
@@ -34,26 +32,18 @@ const EditProfileScreen = ({ profile, updateProfile }) => {
   const _handleSubmit = async () => {
     if (profileImage) {
       setLoading(true);
-      const compressedImage = await ImageResizer.createResizedImage(
-        profileImage.uri,
-        1000,
-        1000,
-        "PNG",
-        100,
-        0
-      );
-      const storageRef = await FireStore()
-        .ref("profile_pics")
-        .child(profileImage.fileName);
-
-      await storageRef.putFile(compressedImage.uri);
-      const uploadImgUrl = await storageRef.getDownloadURL();
-
-      await updateProfile({
-        username,
-        profileImage: uploadImgUrl,
+      await uploadMedia(profileImage?.uri, "profile_pics", async (url) => {
+        if (url) {
+          await updateProfile({
+            username,
+            profileImage: url,
+          });
+          setLoading(false);
+        } else {
+          setLoading(false);
+          Alert.alert(AppStrings.Network.somethingWrong);
+        }
       });
-      setLoading(false);
     } else {
       setLoading(true);
       await updateProfile({

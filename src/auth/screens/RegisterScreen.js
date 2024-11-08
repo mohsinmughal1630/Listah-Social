@@ -37,7 +37,8 @@ import { Button, StackHeader } from "../../common";
 import ImagePickerModal from "../../common/ImagePickerButton/ImagePickerModal";
 import FastImage from "react-native-fast-image";
 import TextInputComponent from "../../common/TextInputComponent";
-import { Theme_Mode } from "../../util/Strings";
+import { AppStrings, Theme_Mode } from "../../util/Strings";
+import { uploadMedia } from "../../network/Services/GeneralServices";
 
 /* =============================================================================
 <RegisterScreen />
@@ -93,6 +94,7 @@ const RegisterScreen = ({ register, navigation }) => {
     }
     _handleSubmit();
   };
+
   const _handleSubmit = async () => {
     if (!toggleCheckBox) {
       Alert.alert("Please accept terms and condition");
@@ -101,26 +103,22 @@ const RegisterScreen = ({ register, navigation }) => {
     if (!disabled) {
       if (regex.test(password)) {
         setLoading(true);
-        const compressedImage = await ImageResizer.createResizedImage(
-          image.uri,
-          1000,
-          1000,
-          "PNG",
-          100,
-          0
-        );
-        const storageRef = FireStore()
-          .ref("profile_pics")
-          .child(image.fileName);
-        await storageRef.putFile(compressedImage.uri);
-        const uploadImgUrl = await storageRef.getDownloadURL();
-        register({
-          email,
-          password,
-          username,
-          profileImage: uploadImgUrl,
+        await uploadMedia(image.uri, "profile_pics", async (url) => {
+          console.log("url-------->", url);
+
+          if (url) {
+            await register({
+              email,
+              password,
+              username,
+              profileImage: url,
+            });
+            setLoading(false);
+          } else {
+            setLoading(false);
+            Alert.alert(AppStrings.Network.somethingWrong);
+          }
         });
-        setLoading(false);
       } else {
         Alert.alert(
           "Password must contain the following:",

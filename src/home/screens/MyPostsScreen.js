@@ -102,7 +102,6 @@ const MyPostsScreen = ({ profile, route, unFollowUser, followUser }) => {
         id={item.id}
         post={item}
         postDel={() => {
-          
           getPostsByUserId();
           route.params.refreshCall();
         }}
@@ -223,9 +222,9 @@ const MyPostsScreen = ({ profile, route, unFollowUser, followUser }) => {
       {profile?.userId !== route?.params?.userId && userProfileInfo?.userId ? (
         <StackHeader
           title={
-            route.params.userId == profile.userId
+            route?.params?.userId == profile?.userId
               ? "My Posts"
-              : route.params.username + " Posts"
+              : route?.params?.username + " Posts"
           }
           right={
             <Image

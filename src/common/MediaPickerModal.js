@@ -84,6 +84,7 @@ const MediaPickerModal = (props) => {
           PERMISSIONS.ANDROID.RECORD_AUDIO,
         ]);
         const cameraResult = Result[PERMISSIONS.ANDROID.CAMERA];
+
         const audioResult = Result[PERMISSIONS.ANDROID.RECORD_AUDIO];
         if (cameraResult == RESULTS.BLOCKED || audioResult == RESULTS.BLOCKED) {
           Alert.alert(

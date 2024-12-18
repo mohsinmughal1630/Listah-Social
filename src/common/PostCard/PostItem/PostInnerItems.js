@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import { FlatList, Image, StyleSheet, TouchableOpacity } from "react-native";
 import Text from "../../Text";
 import View from "../../View";
 import * as Colors from "../../../config/colors";
@@ -16,16 +16,23 @@ import { Theme_Mode } from "../../../util/Strings";
 const PostInnerItems = ({ post, userPosts, profile, setOpenVideoModal }) => {
   const [showMore, setShowMore] = useState(false);
   const themeType = useSelector((AppState) => AppState.sliceReducer.themeType);
-  const [postItems, setPostItems] = useState(
-    userPosts?.length > 3 ? userPosts.slice(0, 3) : userPosts
-  );
+  const [postItems, setPostItems] = useState([]);
+
   useEffect(() => {
-    if (showMore) {
-      setPostItems(userPosts);
+    if (post.order && post.order == "2") {
+      const descendingItems = userPosts.sort((a, b) => b.id - a.id);
+      let posts =
+        descendingItems?.length > 3 && !showMore
+          ? descendingItems.slice(0, 3)
+          : descendingItems;
+      setPostItems(posts);
     } else {
-      setPostItems(userPosts?.length > 3 ? userPosts.slice(0, 3) : userPosts);
+      setPostItems(
+        userPosts?.length > 3 && !showMore ? userPosts.slice(0, 3) : userPosts
+      );
     }
   }, [showMore, userPosts]);
+
   return (
     <View>
       {postItems?.length >= 0 &&
@@ -163,7 +170,11 @@ const PostInnerItems = ({ post, userPosts, profile, setOpenVideoModal }) => {
 
       {userPosts?.length > 3 && (
         <View style={{ flex: 1, alignItems: "flex-end" }}>
-          <TouchableOpacity onPress={() => setShowMore(!showMore)}>
+          <TouchableOpacity
+            onPress={() => {
+              setShowMore(!showMore);
+            }}
+          >
             <Text
               style={{
                 marginTop: 10,

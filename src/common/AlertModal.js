@@ -169,6 +169,7 @@ const styles = StyleSheet.create({
   },
   passwordField: {
     flex: 1,
+    height: normalized(40),
   },
 
   inputCont: {

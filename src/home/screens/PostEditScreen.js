@@ -69,6 +69,7 @@ const PostEditScreen = ({ navigation, updatePost, route }) => {
       });
     }
   };
+  console.log("heloo");
   const _handleRemove = (arrayHelpers, index) => arrayHelpers.remove(index);
 
   const _handleSubmit = async (values) => {
